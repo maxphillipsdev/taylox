@@ -36,6 +36,22 @@ class Scanner {
         case "+": addToken(.PLUS)
         case ";": addToken(.SEMICOLON)
         case "*": addToken(.STAR)
+        case "/":
+            if match("/") {
+                while peek() != "\n" && !isAtEnd() {
+                    _ = advance()
+                }
+            } else {
+                addToken(.SLASH)
+            }
+        case " ":
+            break
+        case "\r":
+            break
+        case "\t":
+            break
+        case "\n":
+            line += 1
         default:
             Lox.error(line: line, message: "Unexpected character: \(c)")
         }
@@ -47,6 +63,19 @@ class Scanner {
         let old = source[current]
         current += 1
         return old
+    }
+
+    private func match(_ expected: Character) -> Bool {
+        if isAtEnd() { return false }
+        if source[current] != expected { return false }
+
+        current += 1
+        return true
+    }
+
+    private func peek() -> Character {
+        if isAtEnd() { return "\0" }
+        return source[current]
     }
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
