@@ -3,6 +3,10 @@
 
 A Swift implementation of the Lox programming language from [Crafting Interpreters.](https://craftinginterpreters.com/)
 
+## Status
+
+Currently working on Chapter 4 (Scanning).
+
 ## Usage
 
 This is a Swift Package Manager project.
@@ -30,3 +34,4 @@ Run with
 ```sh
 dart tool/bin/test.dart jlox --interpreter .build/taylox
 ```
+
