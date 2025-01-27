@@ -1,4 +1,22 @@
 
+# (Tay)lox
+
+A Swift implementation of the Lox programming language from [Crafting Interpreters.](https://craftinginterpreters.com/)
+
+## Usage
+
+This is a Swift Package Manager project.
+
+Run the REPL with
+```sh
+swift run taylox
+```
+
+Run a file with
+```sh
+swift run taylox <path>
+```
+
 ## Tests
 
 Install dependencies with
