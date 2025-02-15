@@ -8,6 +8,25 @@ class Scanner {
     var current = 0
     var line = 1
 
+    let KEYWORDS: [String: TokenType] = [
+        "and": .AND,
+        "class": .CLASS,
+        "else": .ELSE,
+        "false": .FALSE,
+        "for": .FOR,
+        "fun": .FUN,
+        "if": .IF,
+        "nil": .NIL,
+        "or": .OR,
+        "print": .PRINT,
+        "return": .RETURN,
+        "super": .SUPER,
+        "this": .THIS,
+        "true": .TRUE,
+        "var": .VAR,
+        "while": .WHILE
+    ]
+
     init(_ source: String) {
         self.source = source
     }
@@ -56,9 +75,77 @@ class Scanner {
             break
         case "\n":
             line += 1
+        case "\"": string()
         default:
+            if isDigit(c) {
+                number()
+                break
+            }
+
+            if isAlpha(c) {
+                identifier()
+                break
+            }
+
             Lox.error(line: line, message: "Unexpected character: \(c)")
         }
+    }
+
+    private func identifier() {
+        while isAlphanumeric(peek()) { advance() }
+
+        let text = String(source[start..<current])
+
+        guard let keyword = KEYWORDS[text] else {
+            addToken(.IDENTIFIER)
+            return
+        }
+
+        addToken(keyword)
+    }
+
+    private func isAlpha(_ c: Character) -> Bool {
+        return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_"
+    }
+
+    private func isAlphanumeric(_ c: Character) -> Bool {
+        return isAlpha(c) || isDigit(c)
+    }
+
+    private func number() {
+        while isDigit(peek()) { advance() }
+
+        if peek() == "." && isDigit(peekNext()) {
+            // consume '.'
+            advance()
+
+            while isDigit(peek()) { advance() }
+        }
+
+        addToken(.NUMBER, literal: Float(source[start..<current]))
+    }
+
+    private func string() {
+        while peek() != "\"" && !isAtEnd() {
+            if peek() == "\n" {
+                line += 1
+            }
+            _ = advance()
+        }
+
+        if isAtEnd() {
+            Lox.error(line: line, message: "Unterminated string.")
+            return
+        }
+
+        _ = advance()
+
+        let value = source[start + 1..<current - 1]
+        addToken(.STRING, literal: value)
+    }
+
+    private func isDigit(_ char: Character) -> Bool {
+        return char >= "0" && char <= "9"
     }
 
     private func advance() -> Character {
@@ -80,6 +167,11 @@ class Scanner {
     private func peek() -> Character {
         if isAtEnd() { return "\0" }
         return source[current]
+    }
+
+    private func peekNext() -> Character {
+        if current + 1 >= source.count { return "\0" }
+        return source[current + 1]
     }
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
@@ -106,3 +198,4 @@ extension StringProtocol {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 }
+
