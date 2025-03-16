@@ -176,10 +176,11 @@ class Scanner {
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
 
-    private func addToken(_ type: TokenType, literal: Any?) {
+    private func addToken(_ type: TokenType, literal: CustomStringConvertible?) {
         // todo: this substring sucks
         let text = source[start..<current]
         tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))
+        // tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))
     }
 
     private func isAtEnd() -> Bool {

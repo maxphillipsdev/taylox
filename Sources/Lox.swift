@@ -24,8 +24,13 @@ class Lox {
         let scanner = Scanner(input)
         let tokens = scanner.scanTokens()
 
-        for token in tokens {
-            Swift.print(token)
+        let parser = Parser(tokens)
+        let expression = parser.parse()!
+
+        if hadError {
+            return
         }
+        let printer = AstPrinter()
+        Swift.print(printer.print(expression))
     }
 }
