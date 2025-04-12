@@ -176,7 +176,7 @@ class Scanner {
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
 
-    private func addToken(_ type: TokenType, literal: CustomStringConvertible?) {
+    private func addToken(_ type: TokenType, literal: Value?) {
         // todo: this substring sucks
         let text = source[start..<current]
         tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))

@@ -1,9 +1,9 @@
 import Foundation
 
-struct Token: CustomStringConvertible {
+struct Token: Value {
     var type: TokenType
     var lexeme: String
-    var literal: CustomStringConvertible?
+    var literal: Value?
     var line: Int
     var description: String {
         "\(type) \(lexeme) \(literal ?? "null")"

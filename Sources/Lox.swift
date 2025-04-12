@@ -25,12 +25,20 @@ class Lox {
         let tokens = scanner.scanTokens()
 
         let parser = Parser(tokens)
-        let expression = parser.parse()!
+        let expression = parser.parse()
 
         if hadError {
             return
         }
+
+        guard let unwrapped = expression else {
+            return
+        }
+
         let printer = AstPrinter()
-        Swift.print(printer.print(expression))
+        Swift.print(printer.print(unwrapped))
+
+        let interpreter = Interpreter()
+        Swift.print(interpreter.evaluate(unwrapped)?.description)
     }
 }
