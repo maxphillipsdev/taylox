@@ -12,6 +12,7 @@ class Lox {
 
     public static func runPrompt() {
         while true {
+            hadError = false
             Swift.print("> ", terminator: "")
             guard let line = readLine() else {
                 exit(0)
