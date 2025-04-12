@@ -35,7 +35,7 @@ class Lox {
 
             let interpreter = Interpreter()
             guard let value = try interpreter.evaluate(unwrapped) else { return }
-            Swift.print(value)
+            Swift.print(value.description)
         } catch let error as ScannerError {
             Lox.scannerError(line: error.line, message: error.message)
         } catch let error as ParserError {

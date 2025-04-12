@@ -32,31 +32,55 @@ class Interpreter {
 
             switch op.type {
             case .GREATER:
-                return (left as! Float) > (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left > right
             case .GREATER_EQUAL:
-                return (left as! Float) >= (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left >= right
             case .LESS:
-                return (left as! Float) < (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left < right
             case .LESS_EQUAL:
-                return (left as! Float) <= (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left <= right
             case .EQUAL:
                 return isEqual(left, right)
             case .BANG_EQUAL:
                 return !isEqual(left, right)
             case .MINUS:
-                return (left as! Float) - (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left - right
             case .SLASH:
-                return (left as! Float) / (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left / right
             case .STAR:
-                return (left as! Float) * (right as! Float)
+                guard let left = left as? Float, let right = right as? Float else {
+                    throw RuntimeError(message: "Operands must be a number.", token: op)
+                }
+                return left * right
             case .PLUS:
-                if left is Float && right is Float {
-                    return (left as! Float) + (right as! Float)
+                if let left = left as? Float, let right = right as? Float {
+                    return left + right
                 }
 
-                if left is String && right is String {
-                    return (left as! String) + (right as! String)
+                if let left = left as? String, let right = right as? String {
+                    return left + right
                 }
+
+                throw RuntimeError(
+                    message: "Operands must be two numbers or two strings.", token: op)
             default:
                 fatalError("Invalid binary expression...")
             }

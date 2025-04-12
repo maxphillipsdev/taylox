@@ -6,6 +6,16 @@ struct Token: Value {
     var literal: Value?
     var line: Int
     var description: String {
-        "\(type) \(lexeme) \(literal ?? "null")"
+        return "foo"
+        // "\(type) \(lexeme) \(literal ?? "null")"
+        guard let literal = literal else {
+            return "nil"
+        }
+
+        if let literal = literal as? Float {
+            return Int(literal).description
+        }
+
+        return literal.description
     }
 }
