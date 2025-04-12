@@ -9,4 +9,3 @@ struct Token: Value {
         "\(type) \(lexeme) \(literal ?? "null")"
     }
 }
-

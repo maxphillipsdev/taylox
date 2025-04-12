@@ -24,24 +24,24 @@ class Scanner {
         "this": .THIS,
         "true": .TRUE,
         "var": .VAR,
-        "while": .WHILE
+        "while": .WHILE,
     ]
 
     init(_ source: String) {
         self.source = source
     }
 
-    func scanTokens() -> [Token] {
+    func scanTokens() throws(ScannerError) -> [Token] {
         while !isAtEnd() {
             start = current
-            scanToken()
+            try scanToken()
         }
 
         tokens.append(Token(type: .EOF, lexeme: "", literal: nil, line: line))
         return tokens
     }
 
-    private func scanToken() {
+    private func scanToken() throws(ScannerError) {
         let c = advance()
 
         switch c {
@@ -75,7 +75,7 @@ class Scanner {
             break
         case "\n":
             line += 1
-        case "\"": string()
+        case "\"": try string()
         default:
             if isDigit(c) {
                 number()
@@ -87,12 +87,12 @@ class Scanner {
                 break
             }
 
-            Lox.error(line: line, message: "Unexpected character: \(c)")
+            Lox.scannerError(line: line, message: "Unexpected character: \(c)")
         }
     }
 
     private func identifier() {
-        while isAlphanumeric(peek()) { advance() }
+        while isAlphanumeric(peek()) { let _ = advance() }
 
         let text = String(source[start..<current])
 
@@ -113,19 +113,19 @@ class Scanner {
     }
 
     private func number() {
-        while isDigit(peek()) { advance() }
+        while isDigit(peek()) { let _ = advance() }
 
         if peek() == "." && isDigit(peekNext()) {
             // consume '.'
-            advance()
+            let _ = advance()
 
-            while isDigit(peek()) { advance() }
+            while isDigit(peek()) { let _ = advance() }
         }
 
         addToken(.NUMBER, literal: Float(source[start..<current]))
     }
 
-    private func string() {
+    private func string() throws(ScannerError) {
         while peek() != "\"" && !isAtEnd() {
             if peek() == "\n" {
                 line += 1
@@ -134,8 +134,7 @@ class Scanner {
         }
 
         if isAtEnd() {
-            Lox.error(line: line, message: "Unterminated string.")
-            return
+            throw ScannerError(message: "Unterminated string.", line: line)
         }
 
         _ = advance()
@@ -199,4 +198,3 @@ extension StringProtocol {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 }
-

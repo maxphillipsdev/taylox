@@ -30,15 +30,15 @@ class Parser {
         self.tokens = tokens
     }
 
-    func parse() -> Expr? {
-        return try? expression()
+    func parse() throws(ParserError) -> Expr? {
+        return try expression()
     }
 
-    private func expression() throws -> Expr {
+    private func expression() throws(ParserError) -> Expr {
         return try equality()
     }
 
-    private func equality() throws -> Expr {
+    private func equality() throws(ParserError) -> Expr {
         var expr = try comparison()
 
         while match(.BANG_EQUAL, .EQUAL_EQUAL) {
@@ -50,7 +50,7 @@ class Parser {
         return expr
     }
 
-    private func comparison() throws -> Expr {
+    private func comparison() throws(ParserError) -> Expr {
         var expr = try term()
 
         while match(.GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL) {
@@ -62,7 +62,7 @@ class Parser {
         return expr
     }
 
-    private func term() throws -> Expr {
+    private func term() throws(ParserError) -> Expr {
         var expr = try factor()
 
         while match(.MINUS, .PLUS) {
@@ -74,7 +74,7 @@ class Parser {
         return expr
     }
 
-    private func factor() throws -> Expr {
+    private func factor() throws(ParserError) -> Expr {
         var expr = try unary()
 
         while match(.SLASH, .STAR) {
@@ -86,7 +86,7 @@ class Parser {
         return expr
     }
 
-    private func unary() throws -> Expr {
+    private func unary() throws(ParserError) -> Expr {
         if match(.BANG, .MINUS) {
             let op = previous()
             let unary = try unary()
@@ -96,7 +96,7 @@ class Parser {
         return try primary()
     }
 
-    private func primary() throws -> Expr {
+    private func primary() throws(ParserError) -> Expr {
         if match(.FALSE) {
             return Expr.literal(value: false)
         }
@@ -113,28 +113,14 @@ class Parser {
 
         if match(.LEFT_PAREN) {
             let expr = try expression()
-            _ = try! consume(type: .RIGHT_PAREN, errorMessage: "Expect ')' after expression.")
+            guard check(.RIGHT_PAREN) else {
+                throw ParserError(message: "Expect ')' after expression.", token: peek())
+            }
+            let _ = advance()
             return Expr.grouping(expr: expr)
         }
 
-        throw error(token: peek(), message: "Expect expression.")
-    }
-
-    enum ParseError: Error {
-        case generic
-    }
-
-    private func consume(type: TokenType, errorMessage: String) throws -> Token {
-        if check(type) {
-            return advance()
-        }
-
-        throw error(token: peek(), message: errorMessage)
-    }
-
-    private func error(token: Token, message: String) -> ParseError {
-        Lox.error(token: token, message: message)
-        return ParseError.generic
+        throw ParserError(message: "Expect expression.", token: peek())
     }
 
     private func advance() -> Token {

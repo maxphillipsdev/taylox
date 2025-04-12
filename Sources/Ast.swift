@@ -1,4 +1,4 @@
-typealias Value = CustomStringConvertible
+typealias Value = CustomStringConvertible & Sendable
 
 indirect enum Expr {
     case binary(left: Expr, op: Token, right: Expr)
@@ -6,4 +6,3 @@ indirect enum Expr {
     case literal(value: Value?)
     case unary(op: Token, right: Expr)
 }
-

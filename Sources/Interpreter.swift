@@ -3,7 +3,7 @@ class Interpreter {
     func interpret(_ expression: Expr) {
     }
 
-    func evaluate(_ root: Expr) -> Value? {
+    func evaluate(_ root: Expr) throws(RuntimeError) -> Value? {
         switch root {
         case .literal(let value):
             guard let value = value else {
@@ -11,21 +11,24 @@ class Interpreter {
             }
             return value
         case .grouping(let expr):
-            return evaluate(expr)
+            return try evaluate(expr)
         case .unary(let op, let right):
-            let right = evaluate(right)
+            let right = try evaluate(right)
 
             switch op.type {
             case .MINUS:
-                return -(right as! Float)
+                guard let right = right as? Float else {
+                    throw RuntimeError(message: "Operand must be a number.", token: op)
+                }
+                return -(right)
             case .BANG:
                 return !isTruthy(right)
             default:
                 fatalError("Invalid unary expression...")
             }
         case .binary(let left, let op, let right):
-            let left = evaluate(left)
-            let right = evaluate(right)
+            let left = try evaluate(left)
+            let right = try evaluate(right)
 
             switch op.type {
             case .GREATER:
