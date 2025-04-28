@@ -1,16 +1,16 @@
 import Foundation
 
-struct ScannerError: Error {
+struct ScannerError: Error, @unchecked Sendable {
     let message: String
     let line: Int
 }
 
-struct ParserError: Error {
+struct ParserError: Error, @unchecked Sendable{
     let message: String
     let token: Token
 }
 
-struct RuntimeError: Error {
+struct RuntimeError: Error, @unchecked Sendable {
     let message: String
     let token: Token
 }
@@ -36,3 +36,4 @@ extension Lox {
         Swift.print("[line \(line)] Error \(location): \(message)")
     }
 }
+

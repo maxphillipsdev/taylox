@@ -21,7 +21,6 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" ;
 */
 
-@MainActor
 class Parser {
     final var tokens: [Token] = []
     var current = 0
@@ -116,7 +115,7 @@ class Parser {
             guard check(.RIGHT_PAREN) else {
                 throw ParserError(message: "Expect ')' after expression.", token: peek())
             }
-            let _ = advance()
+            _ = advance()
             return Expr.grouping(expr: expr)
         }
 
@@ -163,3 +162,4 @@ class Parser {
         return tokens[current - 1]
     }
 }
+

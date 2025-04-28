@@ -1,6 +1,5 @@
 import Foundation
 
-@MainActor
 class Lox {
     public static func runFile(file: String) {
         do {
@@ -35,7 +34,7 @@ class Lox {
 
             let interpreter = Interpreter()
             guard let value = try interpreter.evaluate(unwrapped) else { return }
-            Swift.print(value.description)
+            Swift.print(value)
         } catch let error as ScannerError {
             Lox.scannerError(line: error.line, message: error.message)
         } catch let error as ParserError {

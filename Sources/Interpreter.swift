@@ -1,9 +1,8 @@
-@MainActor
 class Interpreter {
     func interpret(_ expression: Expr) {
     }
 
-    func evaluate(_ root: Expr) throws(RuntimeError) -> Value? {
+    func evaluate(_ root: Expr) throws(RuntimeError) -> Any? {
         switch root {
         case .literal(let value):
             guard let value = value else {
@@ -88,15 +87,25 @@ class Interpreter {
         return nil
     }
 
-    private func isTruthy(_ value: Value?) -> Bool {
+    private func isTruthy(_ value: Any?) -> Bool {
         guard let value = value else { return false }
         guard value is Bool else { return false }
         return true
     }
 
-    private func isEqual(_ left: Value?, _ right: Value?) -> Bool {
-        guard let left = left, let right = right else { return true }
-
-        return left.description == right.description
+    private func isEqual(_ left: Any?, _ right: Any?) -> Bool {
+        guard left != nil else {
+            return right == nil
+        }
+        if let left = left as? Float, let right = right as? Float {
+            return left == right
+        }
+        if let left = left as? String, let right = right as? String {
+            return left == right
+        }
+        if let left = left as? Bool, let right = right as? Bool {
+            return left == right
+        }
+        return false
     }
 }

@@ -1,6 +1,5 @@
 import Foundation
 
-@MainActor
 class Scanner {
     final var source: String
     final var tokens: [Token] = []
@@ -24,7 +23,7 @@ class Scanner {
         "this": .THIS,
         "true": .TRUE,
         "var": .VAR,
-        "while": .WHILE,
+        "while": .WHILE
     ]
 
     init(_ source: String) {
@@ -92,7 +91,7 @@ class Scanner {
     }
 
     private func identifier() {
-        while isAlphanumeric(peek()) { let _ = advance() }
+        while isAlphanumeric(peek()) { _ = advance() }
 
         let text = String(source[start..<current])
 
@@ -113,13 +112,13 @@ class Scanner {
     }
 
     private func number() {
-        while isDigit(peek()) { let _ = advance() }
+        while isDigit(peek()) { _ = advance() }
 
         if peek() == "." && isDigit(peekNext()) {
             // consume '.'
-            let _ = advance()
+            _ = advance()
 
-            while isDigit(peek()) { let _ = advance() }
+            while isDigit(peek()) { _ = advance() }
         }
 
         addToken(.NUMBER, literal: Float(source[start..<current]))
@@ -140,7 +139,7 @@ class Scanner {
         _ = advance()
 
         let value = source[start + 1..<current - 1]
-        addToken(.STRING, literal: value)
+        addToken(.STRING, literal: String(value))
     }
 
     private func isDigit(_ char: Character) -> Bool {
@@ -175,11 +174,10 @@ class Scanner {
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
 
-    private func addToken(_ type: TokenType, literal: Value?) {
+    private func addToken(_ type: TokenType, literal: Any?) {
         // todo: this substring sucks
         let text = source[start..<current]
         tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))
-        // tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))
     }
 
     private func isAtEnd() -> Bool {
@@ -198,3 +196,4 @@ extension StringProtocol {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 }
+
