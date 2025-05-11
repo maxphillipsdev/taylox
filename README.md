@@ -5,7 +5,8 @@ A Swift implementation of the Lox programming language from [Crafting Interprete
 
 ## Status
 
-Currently working on Chapter 4 (Scanning).
+In progress, currently functional in REPL and file input form as an expression
+evaluater.
 
 ## Usage
 
