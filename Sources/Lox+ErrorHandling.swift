@@ -5,14 +5,14 @@ struct ScannerError: Error, @unchecked Sendable {
     let line: Int
 }
 
-struct ParserError: Error, @unchecked Sendable{
+struct ParserError: Error, @unchecked Sendable {
     let message: String
     let token: Token
 }
 
 struct RuntimeError: Error, @unchecked Sendable {
     let message: String
-    let token: Token
+    let token: Token?
 }
 
 extension Lox {
@@ -29,7 +29,7 @@ extension Lox {
     }
 
     static func runtimeError(_ error: RuntimeError) {
-        Swift.print("[line \(error.token.line)] \(error.message)")
+        Swift.print("[line \(error.token?.line)] \(error.message)")
     }
 
     private static func report(line: Int, location: String, message: String) {

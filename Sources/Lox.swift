@@ -20,34 +20,20 @@ class Lox {
         }
     }
 
-    private static func stringify(_ value: Any?) -> String {
-        guard let value = value else { return "nil" }
-        if let numericValue = value as? Float {
-            let text = String(numericValue)
-            // print integral values as integers
-            return text.hasSuffix(".0") ? String(text.dropLast(2)) : text
-        }
-        if let stringValue = value as? String {
-            return stringValue
-        }
-        return String(describing: value)
-    }
-
     static func run(input: String) {
         do {
             let scanner = Scanner(input)
             let tokens = try scanner.scanTokens()
 
             let parser = Parser(tokens)
-            let expression = try parser.parse()
+            let statements = try parser.parse()
 
-            guard let unwrapped = expression else {
+            guard let unwrapped = statements else {
                 return
             }
 
             let interpreter = Interpreter()
-            guard let value = try interpreter.evaluate(unwrapped) else { return }
-            Swift.print(stringify(value))
+            try interpreter.interpret(unwrapped)
         } catch let error as ScannerError {
             Lox.scannerError(line: error.line, message: error.message)
         } catch let error as ParserError {

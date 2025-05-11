@@ -121,7 +121,8 @@ class Scanner {
             while isDigit(peek()) { _ = advance() }
         }
 
-        addToken(.NUMBER, literal: Float(source[start..<current]))
+        let literal = Literal.float(Float(source[start..<current])!)
+        addToken(.NUMBER, literal: literal)
     }
 
     private func string() throws(ScannerError) {
@@ -139,7 +140,7 @@ class Scanner {
         _ = advance()
 
         let value = source[start + 1..<current - 1]
-        addToken(.STRING, literal: String(value))
+        addToken(.STRING, literal: Literal.string(String(value)))
     }
 
     private func isDigit(_ char: Character) -> Bool {
@@ -174,7 +175,7 @@ class Scanner {
 
     private func addToken(_ type: TokenType) { addToken(type, literal: nil) }
 
-    private func addToken(_ type: TokenType, literal: Any?) {
+    private func addToken(_ type: TokenType, literal: Literal?) {
         // todo: this substring sucks
         let text = source[start..<current]
         tokens.append(Token(type: type, lexeme: String(text), literal: literal, line: line))

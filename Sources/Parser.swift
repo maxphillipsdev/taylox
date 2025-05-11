@@ -29,8 +29,38 @@ class Parser {
         self.tokens = tokens
     }
 
-    func parse() throws(ParserError) -> Expr? {
-        return try expression()
+    func parse() throws(ParserError) -> [Stmt]? {
+        var stmts: [Stmt] = []
+        while !isAtEnd() {
+            stmts.append(try statement())
+        }
+        return stmts
+    }
+
+    private func statement() throws(ParserError) -> Stmt {
+        if match(.PRINT) {
+            return try printStatement()
+        }
+
+        return try expressionStatement()
+    }
+
+    private func printStatement() throws(ParserError) -> Stmt {
+        let value = try expression()
+        guard match(.SEMICOLON) else {
+            throw ParserError(message: "Expect ';' after value.", token: peek())
+        }
+
+        return Stmt.print(expr: value)
+    }
+
+    private func expressionStatement() throws(ParserError) -> Stmt {
+        let value = try expression()
+        guard match(.SEMICOLON) else {
+            throw ParserError(message: "Expect ';' after expression.", token: peek())
+        }
+
+        return Stmt.expr(expr: value)
     }
 
     private func expression() throws(ParserError) -> Expr {
@@ -97,10 +127,10 @@ class Parser {
 
     private func primary() throws(ParserError) -> Expr {
         if match(.FALSE) {
-            return Expr.literal(value: false)
+            return Expr.literal(value: Literal.bool(false))
         }
         if match(.TRUE) {
-            return Expr.literal(value: true)
+            return Expr.literal(value: Literal.bool(true))
         }
         if match(.NIL) {
             return Expr.literal(value: nil)

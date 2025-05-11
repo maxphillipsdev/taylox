@@ -1,8 +1,34 @@
 class Interpreter {
-    func interpret(_ expression: Expr) {
+    func interpret(_ statements: [Stmt]) throws(RuntimeError) {
+        for statement in statements {
+            try execute(statement)
+        }
     }
 
-    func evaluate(_ root: Expr) throws(RuntimeError) -> Any? {
+    private func execute(_ root: Stmt) throws(RuntimeError) {
+        switch root {
+        case .expr(let expr):
+            try evaluate(expr)
+        case .print(let expr):
+            let value = try evaluate(expr)
+            Swift.print(stringify(value))
+        }
+    }
+
+    private func stringify(_ value: Literal?) -> String {
+        guard let value = value else { return "nil" }
+        if case .float(let numericValue) = value {
+            let text = String(numericValue)
+            // print integral values as integers
+            return text.hasSuffix(".0") ? String(text.dropLast(2)) : text
+        }
+        if case .string(let stringValue) = value {
+            return stringValue
+        }
+        return String(describing: value)
+    }
+
+    private func evaluate(_ root: Expr) throws(RuntimeError) -> Literal? {
         switch root {
         case .literal(let value):
             guard let value = value else {
@@ -16,12 +42,12 @@ class Interpreter {
 
             switch op.type {
             case .MINUS:
-                guard let right = right as? Float else {
+                guard case .float(let right) = right else {
                     throw RuntimeError(message: "Operand must be a number.", token: op)
                 }
-                return -(right)
+                return Literal.float(-(right))
             case .BANG:
-                return !isTruthy(right)
+                return Literal.bool(!isTruthy(right))
             default:
                 fatalError("Invalid unary expression...")
             }
@@ -31,51 +57,51 @@ class Interpreter {
 
             switch op.type {
             case .GREATER:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left > right
+                return Literal.bool(left > right)
             case .GREATER_EQUAL:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left >= right
+                return Literal.bool(left >= right)
             case .LESS:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left < right
+                return Literal.bool(left < right)
             case .LESS_EQUAL:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left <= right
+                return Literal.bool(left <= right)
             case .EQUAL:
-                return isEqual(left, right)
+                return Literal.bool(isEqual(left, right))
             case .BANG_EQUAL:
-                return !isEqual(left, right)
+                return Literal.bool(!isEqual(left, right))
             case .MINUS:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left - right
+                return Literal.float(left - right)
             case .SLASH:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left / right
+                return Literal.float(left / right)
             case .STAR:
-                guard let left = left as? Float, let right = right as? Float else {
+                guard case .float(let left) = left, case .float(let right) = right else {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
-                return left * right
+                return Literal.float(left * right)
             case .PLUS:
-                if let left = left as? Float, let right = right as? Float {
-                    return left + right
+                if case .float(let left) = left, case .float(let right) = right {
+                    return Literal.float(left + right)
                 }
 
-                if let left = left as? String, let right = right as? String {
-                    return left + right
+                if case .string(let left) = left, case .string(let right) = right {
+                    return Literal.string(left + right)
                 }
 
                 throw RuntimeError(
@@ -87,25 +113,26 @@ class Interpreter {
         return nil
     }
 
-    private func isTruthy(_ value: Any?) -> Bool {
-        guard let value = value else { return false }
-        guard value is Bool else { return false }
+    private func isTruthy(_ value: Literal?) -> Bool {
+        guard case .bool = value else { return false }
+
         return true
     }
 
-    private func isEqual(_ left: Any?, _ right: Any?) -> Bool {
+    private func isEqual(_ left: Literal?, _ right: Literal?) -> Bool {
         guard left != nil else {
             return right == nil
         }
-        if let left = left as? Float, let right = right as? Float {
+        if case .float(let left) = left, case .float(let right) = right {
             return left == right
         }
-        if let left = left as? String, let right = right as? String {
+        if case .string(let left) = left, case .string(let right) = right {
             return left == right
         }
-        if let left = left as? Bool, let right = right as? Bool {
+        if case .bool(let left) = left, case .bool(let right) = right {
             return left == right
         }
         return false
     }
+
 }
