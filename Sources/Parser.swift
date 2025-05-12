@@ -32,9 +32,35 @@ class Parser {
     func parse() throws(ParserError) -> [Stmt]? {
         var stmts: [Stmt] = []
         while !isAtEnd() {
-            stmts.append(try statement())
+            stmts.append(try declaration())
         }
         return stmts
+    }
+
+    private func declaration() throws(ParserError) -> Stmt {
+        if match(.VAR) {
+            return try varDeclaration()
+        }
+
+        return try statement()
+    }
+
+    private func varDeclaration() throws(ParserError) -> Stmt {
+        guard check(.IDENTIFIER) else {
+            throw ParserError(message: "Expect variable name.", token: peek())
+        }
+        let token = advance()
+
+        var initializer: Expr?
+        if match(.EQUAL) {
+            initializer = try expression()
+        }
+
+        guard match(.SEMICOLON) else {
+            throw ParserError(message: "Expect ';' after expression.", token: peek())
+        }
+
+        return Stmt.varDecl(name: token, initializer: initializer)
     }
 
     private func statement() throws(ParserError) -> Stmt {
@@ -138,6 +164,10 @@ class Parser {
 
         if match(.NUMBER, .STRING) {
             return Expr.literal(value: previous().literal)
+        }
+
+        if match(.IDENTIFIER) {
+            return Expr.variable(name: previous())
         }
 
         if match(.LEFT_PAREN) {

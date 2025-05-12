@@ -1,31 +1,49 @@
 class Interpreter {
-    func interpret(_ statements: [Stmt]) throws(RuntimeError) {
+    let environment: Environment = Environment(nil)
+
+    func interpret(_ statements: [Stmt]) throws(RuntimeError) -> String? {
+        var result: String?
         for statement in statements {
-            try execute(statement)
+            result = try execute(statement)
         }
+
+        return result
     }
 
-    private func execute(_ root: Stmt) throws(RuntimeError) {
+    private func execute(_ root: Stmt) throws(RuntimeError) -> String? {
         switch root {
         case .expr(let expr):
-            try evaluate(expr)
+            let value = try evaluate(expr)
+
+            // return a string version for use in REPL-mode.
+            return stringify(value)
         case .print(let expr):
             let value = try evaluate(expr)
             Swift.print(stringify(value))
+            return nil
+        case .varDecl(let name, let initializer):
+            guard let expr = initializer else {
+                environment.define(name.lexeme, nil)
+                return nil
+            }
+            let value = try evaluate(expr)
+            environment.define(name.lexeme, value)
+            return nil
         }
     }
 
     private func stringify(_ value: Literal?) -> String {
         guard let value = value else { return "nil" }
-        if case .float(let numericValue) = value {
-            let text = String(numericValue)
+        switch value {
+        case .float(let value):
+            let text = String(value)
             // print integral values as integers
             return text.hasSuffix(".0") ? String(text.dropLast(2)) : text
+        case .string(let value):
+            return value
+        case .bool(let value):
+            return value.description
         }
-        if case .string(let stringValue) = value {
-            return stringValue
-        }
-        return String(describing: value)
     }
 
     private func evaluate(_ root: Expr) throws(RuntimeError) -> Literal? {
@@ -37,6 +55,8 @@ class Interpreter {
             return value
         case .grouping(let expr):
             return try evaluate(expr)
+        case .variable(let name):
+            return try environment.get(name)
         case .unary(let op, let right):
             let right = try evaluate(right)
 
@@ -136,3 +156,4 @@ class Interpreter {
     }
 
 }
+

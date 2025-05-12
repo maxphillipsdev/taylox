@@ -4,7 +4,7 @@ class Lox {
     public static func runFile(file: String) {
         do {
             let contents = try String(contentsOfFile: file, encoding: .utf8)
-            run(input: contents)
+            _ = run(input: contents)
         } catch {
             Swift.print("Failed to read source file '\(file)': \(error.localizedDescription)")
         }
@@ -16,11 +16,13 @@ class Lox {
             guard let line = readLine() else {
                 exit(0)
             }
-            run(input: line)
+            if let expr = run(input: line) {
+                Swift.print(expr)
+            }
         }
     }
 
-    static func run(input: String) {
+    static func run(input: String) -> String? {
         do {
             let scanner = Scanner(input)
             let tokens = try scanner.scanTokens()
@@ -29,11 +31,12 @@ class Lox {
             let statements = try parser.parse()
 
             guard let unwrapped = statements else {
-                return
+                return nil
             }
 
+            // Refactor this to persist state within the repl.
             let interpreter = Interpreter()
-            try interpreter.interpret(unwrapped)
+            return try interpreter.interpret(unwrapped)
         } catch let error as ScannerError {
             Lox.scannerError(line: error.line, message: error.message)
         } catch let error as ParserError {
@@ -43,5 +46,7 @@ class Lox {
         } catch {
             fatalError("Wtf?")
         }
+        return nil
     }
 }
+

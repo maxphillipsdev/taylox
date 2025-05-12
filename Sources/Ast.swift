@@ -7,6 +7,7 @@ enum Literal {
 enum Stmt {
     case expr(expr: Expr)
     case print(expr: Expr)
+    case varDecl(name: Token, initializer: Expr?)
 }
 
 indirect enum Expr: Sendable {
@@ -14,5 +15,6 @@ indirect enum Expr: Sendable {
     case grouping(expr: Expr)
     case literal(value: Literal?)
     case unary(op: Token, right: Expr)
+    case variable(name: Token)
 }
 

@@ -29,7 +29,7 @@ extension Lox {
     }
 
     static func runtimeError(_ error: RuntimeError) {
-        Swift.print("[line \(error.token?.line)] \(error.message)")
+        Swift.print("[line \(error.token!.line)] \(error.message)")
     }
 
     private static func report(line: Int, location: String, message: String) {

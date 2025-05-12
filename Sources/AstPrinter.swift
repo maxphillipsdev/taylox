@@ -7,6 +7,8 @@ class AstPrinter {
             return try parenthesize(op.lexeme, left, right)
         case .grouping(let expr):
             return try parenthesize("group", expr)
+        case .variable(let name):
+            return "name"
         case .literal(let value):
             guard let value = value else {
                 return "nil"
