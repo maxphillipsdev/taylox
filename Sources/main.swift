@@ -7,7 +7,7 @@ guard CommandLine.argc <= 2 else {
 }
 
 if CommandLine.argc == 2 {
-    Lox.runFile(file: CommandLine.arguments[1])
+    Lox().runFile(file: CommandLine.arguments[1])
 } else {
-    Lox.runPrompt()
+    Lox().runPrompt()
 }

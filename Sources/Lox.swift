@@ -1,7 +1,13 @@
 import Foundation
 
 class Lox {
-    public static func runFile(file: String) {
+    private let interpreter: Interpreter
+
+    init() {
+        interpreter = Interpreter()
+    }
+
+    public func runFile(file: String) {
         do {
             let contents = try String(contentsOfFile: file, encoding: .utf8)
             _ = run(input: contents)
@@ -10,7 +16,7 @@ class Lox {
         }
     }
 
-    public static func runPrompt() {
+    public func runPrompt() {
         while true {
             Swift.print("> ", terminator: "")
             guard let line = readLine() else {
@@ -22,7 +28,7 @@ class Lox {
         }
     }
 
-    static func run(input: String) -> String? {
+    func run(input: String) -> String? {
         do {
             let scanner = Scanner(input)
             let tokens = try scanner.scanTokens()
@@ -34,8 +40,6 @@ class Lox {
                 return nil
             }
 
-            // Refactor this to persist state within the repl.
-            let interpreter = Interpreter()
             return try interpreter.interpret(unwrapped)
         } catch let error as ScannerError {
             Lox.scannerError(line: error.line, message: error.message)

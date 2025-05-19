@@ -11,6 +11,7 @@ enum Stmt {
 }
 
 indirect enum Expr: Sendable {
+    // case assignment(name: Token, value: Expr)
     case binary(left: Expr, op: Token, right: Expr)
     case grouping(expr: Expr)
     case literal(value: Literal?)
