@@ -134,7 +134,7 @@ class Parser {
     }
 
     private func assignment() throws(ParserError) -> Expr {
-        let expr = try equality()
+        let expr = try or()
 
         if match(.EQUAL) {
             let equals = previous()
@@ -147,6 +147,29 @@ class Parser {
             Lox.parserError(token: equals, message: "Invalid assignment target.")
         }
 
+        return expr
+    }
+
+    private func or() throws(ParserError) -> Expr {
+        var expr = try and()
+
+        while match(.OR) {
+            let op = previous()
+            let right = try and()
+            expr = Expr.Logical(left: expr, op: op, right: right)
+        }
+
+        return expr
+    }
+
+    private func and() throws(ParserError) -> Expr {
+        var expr = try equality()
+
+        while match(.AND) {
+            let op = previous()
+            let right = try equality()
+            expr = Expr.Logical(left: expr, op: op, right: right)
+        }
         return expr
     }
 

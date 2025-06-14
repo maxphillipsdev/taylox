@@ -75,6 +75,20 @@ class Interpreter {
                 return nil
             }
             return value
+        case .Logical(let left, let op, let right):
+            let left = try evaluate(left)
+
+            // short circuit behaviour here
+            if op.type == .OR {
+                if isTruthy(left) {
+                    return left
+                }
+            } else {
+                if !isTruthy(left) {
+                    return left
+                }
+            }
+            return try evaluate(right)
         case .Grouping(let expr):
             return try evaluate(expr)
         case .Variable(let name):
@@ -160,9 +174,20 @@ class Interpreter {
     }
 
     private func isTruthy(_ literal: Literal?) -> Bool {
-        guard case let .Bool(value) = literal else { return false }
-
-        return value
+        switch literal {
+        case .Bool(let value):
+            return value
+        case .String(let value):
+            return value.count > 0
+        case .Float(let value):
+            return value != 0.0
+        case .none:
+            return false
+        case .some(let value):
+            // recursively unwrap the value.
+            // this feels like a bad idea, but it also feels really cool.
+            return isTruthy(value)
+        }
     }
 
     private func isEqual(_ left: Literal?, _ right: Literal?) -> Bool {

@@ -20,6 +20,8 @@ class AstPrinter {
                 return ""
             }
             return value
+        case .Logical(let left, let op, let right):
+            return "\(left) \(op.lexeme) \(right)"
         }
     }
 

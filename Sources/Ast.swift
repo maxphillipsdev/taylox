@@ -17,6 +17,7 @@ indirect enum Expr: Sendable {
     case Binary(left: Expr, op: Token, right: Expr)
     case Grouping(expr: Expr)
     case Literal(value: Literal?)
+    case Logical(left: Expr, op: Token, right: Expr)
     case Unary(op: Token, right: Expr)
     case Variable(name: Token)
 }
