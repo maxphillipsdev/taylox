@@ -13,8 +13,15 @@ class Environment {
         return value
     }
 
-    func define(_ name: String, _ value: Literal?) {
-        values[name] = value
+    func define(_ name: Token, _ value: Literal?) {
+        values[name.lexeme] = value
+    }
+
+    func assign(_ name: Token, _ value: Literal?) throws(RuntimeError) {
+        if values[name.lexeme] == nil {
+            throw RuntimeError(message: "Undefined variable '\(name.lexeme)'.", token: name)
+        }
+
+        values[name.lexeme] = value
     }
 }
-

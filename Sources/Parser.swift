@@ -90,7 +90,24 @@ class Parser {
     }
 
     private func expression() throws(ParserError) -> Expr {
-        return try equality()
+        return try assignment()
+    }
+
+    private func assignment() throws(ParserError) -> Expr {
+        let expr = try equality()
+
+        if match(.EQUAL) {
+            let equals = previous()
+            let value = try assignment()
+
+            if case .variable(let name) = expr {
+                return Expr.assignment(name: name, value: value)
+            }
+
+            Lox.parserError(token: equals, message: "Invalid assignment target.")
+        }
+
+        return expr
     }
 
     private func equality() throws(ParserError) -> Expr {
@@ -222,4 +239,3 @@ class Parser {
         return tokens[current - 1]
     }
 }
-

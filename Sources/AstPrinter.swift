@@ -9,6 +9,9 @@ class AstPrinter {
             return try parenthesize("group", expr)
         case .variable(let name):
             return "name"
+        case .assignment(let name, let valueExpr):
+            let value = try print(valueExpr)
+            return "\(name) = \(value)"
         case .literal(let value):
             guard let value = value else {
                 return "nil"
@@ -33,4 +36,3 @@ class AstPrinter {
         return result
     }
 }
-

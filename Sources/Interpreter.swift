@@ -23,11 +23,11 @@ class Interpreter {
             return nil
         case .varDecl(let name, let initializer):
             guard let expr = initializer else {
-                environment.define(name.lexeme, nil)
+                environment.define(name, nil)
                 return nil
             }
             let value = try evaluate(expr)
-            environment.define(name.lexeme, value)
+            environment.define(name, value)
             return nil
         }
     }
@@ -57,6 +57,10 @@ class Interpreter {
             return try evaluate(expr)
         case .variable(let name):
             return try environment.get(name)
+        case .assignment(let name, let valueExpr):
+            let value = try evaluate(valueExpr)
+            try environment.assign(name, value)
+            return value
         case .unary(let op, let right):
             let right = try evaluate(right)
 
@@ -156,4 +160,3 @@ class Interpreter {
     }
 
 }
-
