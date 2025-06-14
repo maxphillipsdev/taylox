@@ -10,6 +10,7 @@ indirect enum Stmt {
     case If(condition: Expr, then: Stmt, else: Stmt?)
     case Print(expr: Expr)
     case Var(name: Token, initializer: Expr?)
+    case While(condition: Expr, body: Stmt)
 }
 
 indirect enum Expr: Sendable {

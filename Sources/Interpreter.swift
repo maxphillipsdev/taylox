@@ -20,7 +20,6 @@ class Interpreter {
         case .Print(let expr):
             let value = try evaluate(expr)
             Swift.print(stringify(value))
-            return nil
         case .Var(let name, let initializer):
             guard let expr = initializer else {
                 environment.define(name, nil)
@@ -28,18 +27,20 @@ class Interpreter {
             }
             let value = try evaluate(expr)
             environment.define(name, value)
-            return nil
+        case .While(let condition, let body):
+            while isTruthy(try evaluate(condition)) {
+                let _ = try execute(body)
+            }
         case .Block(let stmts):
             try executeBlock(stmts, environment: Environment(enclosing: environment))
-            return nil
         case .If(let condition, let thenBranch, let elseBranch):
             if isTruthy(try evaluate(condition)) {
                 return try execute(thenBranch)
             } else if let elseBranch = elseBranch {
                 return try execute(elseBranch)
             }
-            return nil
         }
+        return nil
     }
 
     private func stringify(_ value: Literal?) -> String {
@@ -62,7 +63,7 @@ class Interpreter {
         self.environment = environment
 
         for statement in statements {
-            try execute(statement)
+            let _ = try execute(statement)
         }
 
         self.environment = previous

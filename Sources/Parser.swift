@@ -64,6 +64,10 @@ class Parser {
     }
 
     private func statement() throws(ParserError) -> Stmt {
+        if match(.FOR) {
+            return try forStatement()
+        }
+
         if match(.IF) {
             return try ifStatement()
         }
@@ -72,11 +76,66 @@ class Parser {
             return try printStatement()
         }
 
+        if match(.WHILE) {
+            return try whileStatement()
+        }
+
         if match(.LEFT_BRACE) {
             return Stmt.Block(stmts: try block())
         }
 
         return try expressionStatement()
+    }
+
+    private func forStatement() throws(ParserError) -> Stmt {
+        guard match(.LEFT_PAREN) else {
+            throw ParserError(message: "Expect '(' after 'while'.", token: peek())
+        }
+
+        var initializer: Stmt?
+        if match(.SEMICOLON) {
+            initializer = nil
+        } else if match(.VAR) {
+            initializer = try varDeclaration()
+        } else {
+            initializer = try expressionStatement()
+        }
+
+        var condition: Expr? = nil
+        if match(.SEMICOLON) {
+            condition = try expression()
+        }
+
+        guard match(.SEMICOLON) else {
+            throw ParserError(message: "Expect ';' after loop condition.", token: peek())
+        }
+
+        var increment: Expr? = nil
+        if !check(.RIGHT_PAREN) {
+            increment = try expression()
+        }
+
+        guard match(.RIGHT_PAREN) else {
+            throw ParserError(message: "Expect ')' after for clauses.", token: peek())
+        }
+
+        // turn it into a while loop
+        var body = try statement()
+        body = Stmt.Block(stmts: [
+            body,
+            Stmt.Expr(expr: increment),
+        ])
+
+        if condition == nil {
+            condition = Expr.Literal(value: Literal.Bool(true))
+        }
+        body = Stmt.While(condition: condition, body: body)
+
+        if initializer != nil {
+            body = Stmt.Block(stmts: [initializer, body])
+        }
+
+        return body
     }
 
     private func ifStatement() throws(ParserError) -> Stmt {
@@ -96,6 +155,19 @@ class Parser {
         }
 
         return Stmt.If(condition: condition, then: thenBranch, else: elseBranch)
+    }
+
+    private func whileStatement() throws(ParserError) -> Stmt {
+        guard match(.LEFT_PAREN) else {
+            throw ParserError(message: "Expect '(' after 'while'.", token: peek())
+        }
+        let condition = try expression()
+        guard match(.RIGHT_PAREN) else {
+            throw ParserError(message: "Expect ')' after while condition.", token: peek())
+        }
+
+        let body = try statement()
+        return Stmt.While(condition: condition, body: body)
     }
 
     private func printStatement() throws(ParserError) -> Stmt {
