@@ -4,9 +4,10 @@ enum Literal {
     case bool(Bool)
 }
 
-enum Stmt {
+indirect enum Stmt {
     case block(stmts: [Stmt])
     case expr(expr: Expr)
+    case If(condition: Expr, then: Stmt, else: Stmt?)
     case print(expr: Expr)
     case varDecl(name: Token, initializer: Expr?)
 }

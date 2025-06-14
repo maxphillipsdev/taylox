@@ -64,6 +64,10 @@ class Parser {
     }
 
     private func statement() throws(ParserError) -> Stmt {
+        if match(.IF) {
+            return try ifStatement()
+        }
+
         if match(.PRINT) {
             return try printStatement()
         }
@@ -73,6 +77,25 @@ class Parser {
         }
 
         return try expressionStatement()
+    }
+
+    private func ifStatement() throws(ParserError) -> Stmt {
+        guard match(.LEFT_PAREN) else {
+            throw ParserError(message: "Expect '(' after 'if'.", token: peek())
+        }
+        let condition = try expression()
+        guard match(.RIGHT_PAREN) else {
+            throw ParserError(message: "Expect ')' after if condition.", token: peek())
+        }
+
+        let thenBranch = try statement()
+        var elseBranch: Stmt? = nil
+
+        if match(.ELSE) {
+            elseBranch = try statement()
+        }
+
+        return Stmt.If(condition: condition, then: thenBranch, else: elseBranch)
     }
 
     private func printStatement() throws(ParserError) -> Stmt {
@@ -92,7 +115,7 @@ class Parser {
         }
 
         if !match(.RIGHT_BRACE) {
-            throw ParserError(message: "Expect '}' after block.", token: tokens[current])
+            throw ParserError(message: "Expect '}' after block.", token: peek())
         }
         return stmts
     }

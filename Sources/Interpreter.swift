@@ -32,6 +32,13 @@ class Interpreter {
         case .block(let stmts):
             try executeBlock(stmts, environment: Environment(enclosing: environment))
             return nil
+        case .If(let condition, let thenBranch, let elseBranch):
+            if isTruthy(try evaluate(condition)) {
+                return try execute(thenBranch)
+            } else if let elseBranch = elseBranch {
+                return try execute(elseBranch)
+            }
+            return nil
         }
     }
 
@@ -152,10 +159,10 @@ class Interpreter {
         return nil
     }
 
-    private func isTruthy(_ value: Literal?) -> Bool {
-        guard case .bool = value else { return false }
+    private func isTruthy(_ literal: Literal?) -> Bool {
+        guard case let .bool(value) = literal else { return false }
 
-        return true
+        return value
     }
 
     private func isEqual(_ left: Literal?, _ right: Literal?) -> Bool {
