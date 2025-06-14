@@ -68,6 +68,10 @@ class Parser {
             return try printStatement()
         }
 
+        if match(.LEFT_BRACE) {
+            return Stmt.block(stmts: try block())
+        }
+
         return try expressionStatement()
     }
 
@@ -78,6 +82,19 @@ class Parser {
         }
 
         return Stmt.print(expr: value)
+    }
+
+    private func block() throws(ParserError) -> [Stmt] {
+        var stmts: [Stmt] = []
+
+        while !check(.RIGHT_BRACE) && !isAtEnd() {
+            stmts.append(try declaration())
+        }
+
+        if !match(.RIGHT_BRACE) {
+            throw ParserError(message: "Expect '}' after block.", token: tokens[current])
+        }
+        return stmts
     }
 
     private func expressionStatement() throws(ParserError) -> Stmt {

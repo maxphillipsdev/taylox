@@ -2,15 +2,20 @@ class Environment {
     private var values: [String: Literal?] = [String: Literal?]()
     var enclosing: Environment?
 
-    init(_ parent: Environment?) {
-        enclosing = parent
+    init(enclosing: Environment?) {
+        self.enclosing = enclosing
     }
 
     func get(_ name: Token) throws(RuntimeError) -> Literal? {
-        guard let value = values[name.lexeme] else {
-            throw RuntimeError(message: "Undefined variable '\(name.lexeme)'.", token: name)
+        if let value = values[name.lexeme] {
+            return value
         }
-        return value
+
+        if let enclosing = enclosing {
+            return try enclosing.get(name)
+        }
+
+        throw RuntimeError(message: "Undefined variable '\(name.lexeme)'.", token: name)
     }
 
     func define(_ name: Token, _ value: Literal?) {

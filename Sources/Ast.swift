@@ -5,6 +5,7 @@ enum Literal {
 }
 
 enum Stmt {
+    case block(stmts: [Stmt])
     case expr(expr: Expr)
     case print(expr: Expr)
     case varDecl(name: Token, initializer: Expr?)

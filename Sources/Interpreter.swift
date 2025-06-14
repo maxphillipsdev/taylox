@@ -1,5 +1,5 @@
 class Interpreter {
-    let environment: Environment = Environment(nil)
+    var environment: Environment = Environment(enclosing: nil)
 
     func interpret(_ statements: [Stmt]) throws(RuntimeError) -> String? {
         var result: String?
@@ -29,6 +29,9 @@ class Interpreter {
             let value = try evaluate(expr)
             environment.define(name, value)
             return nil
+        case .block(let stmts):
+            try executeBlock(stmts, environment: Environment(enclosing: environment))
+            return nil
         }
     }
 
@@ -44,6 +47,18 @@ class Interpreter {
         case .bool(let value):
             return value.description
         }
+    }
+
+    private func executeBlock(_ statements: [Stmt], environment: Environment) throws(RuntimeError) {
+        let previous = self.environment
+
+        self.environment = environment
+
+        for statement in statements {
+            try execute(statement)
+        }
+
+        self.environment = previous
     }
 
     private func evaluate(_ root: Expr) throws(RuntimeError) -> Literal? {
