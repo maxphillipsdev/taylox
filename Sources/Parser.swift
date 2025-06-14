@@ -60,7 +60,7 @@ class Parser {
             throw ParserError(message: "Expect ';' after expression.", token: peek())
         }
 
-        return Stmt.varDecl(name: token, initializer: initializer)
+        return Stmt.VarDecl(name: token, initializer: initializer)
     }
 
     private func statement() throws(ParserError) -> Stmt {
@@ -73,7 +73,7 @@ class Parser {
         }
 
         if match(.LEFT_BRACE) {
-            return Stmt.block(stmts: try block())
+            return Stmt.Block(stmts: try block())
         }
 
         return try expressionStatement()
@@ -104,7 +104,7 @@ class Parser {
             throw ParserError(message: "Expect ';' after value.", token: peek())
         }
 
-        return Stmt.print(expr: value)
+        return Stmt.Print(expr: value)
     }
 
     private func block() throws(ParserError) -> [Stmt] {
@@ -126,7 +126,7 @@ class Parser {
             throw ParserError(message: "Expect ';' after expression.", token: peek())
         }
 
-        return Stmt.expr(expr: value)
+        return Stmt.Expr(expr: value)
     }
 
     private func expression() throws(ParserError) -> Expr {
@@ -140,8 +140,8 @@ class Parser {
             let equals = previous()
             let value = try assignment()
 
-            if case .variable(let name) = expr {
-                return Expr.assignment(name: name, value: value)
+            if case .Variable(let name) = expr {
+                return Expr.Assignment(name: name, value: value)
             }
 
             Lox.parserError(token: equals, message: "Invalid assignment target.")
@@ -156,7 +156,7 @@ class Parser {
         while match(.BANG_EQUAL, .EQUAL_EQUAL) {
             let op = previous()
             let right = try comparison()
-            expr = Expr.binary(left: expr, op: op, right: right)
+            expr = Expr.Binary(left: expr, op: op, right: right)
         }
 
         return expr
@@ -168,7 +168,7 @@ class Parser {
         while match(.GREATER, .GREATER_EQUAL, .LESS, .LESS_EQUAL) {
             let op = previous()
             let right = try term()
-            expr = Expr.binary(left: expr, op: op, right: right)
+            expr = Expr.Binary(left: expr, op: op, right: right)
         }
 
         return expr
@@ -180,7 +180,7 @@ class Parser {
         while match(.MINUS, .PLUS) {
             let op = previous()
             let right = try factor()
-            expr = Expr.binary(left: expr, op: op, right: right)
+            expr = Expr.Binary(left: expr, op: op, right: right)
         }
 
         return expr
@@ -192,7 +192,7 @@ class Parser {
         while match(.SLASH, .STAR) {
             let op = previous()
             let right = try unary()
-            expr = Expr.binary(left: expr, op: op, right: right)
+            expr = Expr.Binary(left: expr, op: op, right: right)
         }
 
         return expr
@@ -202,7 +202,7 @@ class Parser {
         if match(.BANG, .MINUS) {
             let op = previous()
             let unary = try unary()
-            return Expr.unary(op: op, right: unary)
+            return Expr.Unary(op: op, right: unary)
         }
 
         return try primary()
@@ -210,21 +210,21 @@ class Parser {
 
     private func primary() throws(ParserError) -> Expr {
         if match(.FALSE) {
-            return Expr.literal(value: Literal.bool(false))
+            return Expr.Literal(value: Literal.Bool(false))
         }
         if match(.TRUE) {
-            return Expr.literal(value: Literal.bool(true))
+            return Expr.Literal(value: Literal.Bool(true))
         }
         if match(.NIL) {
-            return Expr.literal(value: nil)
+            return Expr.Literal(value: nil)
         }
 
         if match(.NUMBER, .STRING) {
-            return Expr.literal(value: previous().literal)
+            return Expr.Literal(value: previous().literal)
         }
 
         if match(.IDENTIFIER) {
-            return Expr.variable(name: previous())
+            return Expr.Variable(name: previous())
         }
 
         if match(.LEFT_PAREN) {
@@ -233,7 +233,7 @@ class Parser {
                 throw ParserError(message: "Expect ')' after expression.", token: peek())
             }
             _ = advance()
-            return Expr.grouping(expr: expr)
+            return Expr.Grouping(expr: expr)
         }
 
         throw ParserError(message: "Expect expression.", token: peek())

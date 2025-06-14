@@ -1,22 +1,22 @@
 enum Literal {
-    case float(Float)
-    case string(String)
-    case bool(Bool)
+    case Float(Float)
+    case String(String)
+    case Bool(Bool)
 }
 
 indirect enum Stmt {
-    case block(stmts: [Stmt])
-    case expr(expr: Expr)
+    case Block(stmts: [Stmt])
+    case Expr(expr: Expr)
     case If(condition: Expr, then: Stmt, else: Stmt?)
-    case print(expr: Expr)
-    case varDecl(name: Token, initializer: Expr?)
+    case Print(expr: Expr)
+    case VarDecl(name: Token, initializer: Expr?)
 }
 
 indirect enum Expr: Sendable {
-    case assignment(name: Token, value: Expr)
-    case binary(left: Expr, op: Token, right: Expr)
-    case grouping(expr: Expr)
-    case literal(value: Literal?)
-    case unary(op: Token, right: Expr)
-    case variable(name: Token)
+    case Assignment(name: Token, value: Expr)
+    case Binary(left: Expr, op: Token, right: Expr)
+    case Grouping(expr: Expr)
+    case Literal(value: Literal?)
+    case Unary(op: Token, right: Expr)
+    case Variable(name: Token)
 }

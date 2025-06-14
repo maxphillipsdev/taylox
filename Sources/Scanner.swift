@@ -23,7 +23,7 @@ class Scanner {
         "this": .THIS,
         "true": .TRUE,
         "var": .VAR,
-        "while": .WHILE
+        "while": .WHILE,
     ]
 
     init(_ source: String) {
@@ -121,7 +121,7 @@ class Scanner {
             while isDigit(peek()) { _ = advance() }
         }
 
-        let literal = Literal.float(Float(source[start..<current])!)
+        let literal = Literal.Float(Float(source[start..<current])!)
         addToken(.NUMBER, literal: literal)
     }
 
@@ -140,7 +140,7 @@ class Scanner {
         _ = advance()
 
         let value = source[start + 1..<current - 1]
-        addToken(.STRING, literal: Literal.string(String(value)))
+        addToken(.STRING, literal: Literal.String(String(value)))
     }
 
     private func isDigit(_ char: Character) -> Bool {
@@ -197,4 +197,3 @@ extension StringProtocol {
         prefix(range.lowerBound + range.count).suffix(range.count)
     }
 }
-

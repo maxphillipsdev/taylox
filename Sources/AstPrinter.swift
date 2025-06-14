@@ -1,18 +1,18 @@
 class AstPrinter {
     func print(_ root: Expr) throws -> String {
         switch root {
-        case .unary(let op, let right):
+        case .Unary(let op, let right):
             return try parenthesize(op.lexeme, right)
-        case .binary(let left, let op, let right):
+        case .Binary(let left, let op, let right):
             return try parenthesize(op.lexeme, left, right)
-        case .grouping(let expr):
+        case .Grouping(let expr):
             return try parenthesize("group", expr)
-        case .variable(let name):
+        case .Variable(let name):
             return "name"
-        case .assignment(let name, let valueExpr):
+        case .Assignment(let name, let valueExpr):
             let value = try print(valueExpr)
             return "\(name) = \(value)"
-        case .literal(let value):
+        case .Literal(let value):
             guard let value = value else {
                 return "nil"
             }
