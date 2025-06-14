@@ -136,7 +136,7 @@ class Interpreter {
                     throw RuntimeError(message: "Operands must be a number.", token: op)
                 }
                 return Literal.Bool(left <= right)
-            case .EQUAL:
+            case .EQUAL_EQUAL:
                 return Literal.Bool(isEqual(left, right))
             case .BANG_EQUAL:
                 return Literal.Bool(!isEqual(left, right))
