@@ -21,7 +21,7 @@ class Interpreter {
             let value = try evaluate(expr)
             Swift.print(stringify(value))
             return nil
-        case .VarDecl(let name, let initializer):
+        case .Var(let name, let initializer):
             guard let expr = initializer else {
                 environment.define(name, nil)
                 return nil

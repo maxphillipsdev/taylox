@@ -60,7 +60,7 @@ class Parser {
             throw ParserError(message: "Expect ';' after expression.", token: peek())
         }
 
-        return Stmt.VarDecl(name: token, initializer: initializer)
+        return Stmt.Var(name: token, initializer: initializer)
     }
 
     private func statement() throws(ParserError) -> Stmt {
