@@ -144,7 +144,8 @@ class Parser {
                 return Expr.Assignment(name: name, value: value)
             }
 
-            Lox.parserError(token: equals, message: "Invalid assignment target.")
+            Lox.report(
+                line: equals.line, location: equals.lexeme, message: "Invalid assignment target.")
         }
 
         return expr

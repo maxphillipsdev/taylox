@@ -15,25 +15,28 @@ struct RuntimeError: Error, @unchecked Sendable {
     let token: Token?
 }
 
+// TODO: These should print to stderr
 extension Lox {
     static func scannerError(line: Int, message: String) {
-        report(line: line, location: "", message: message)
+        Swift.print(report(line: line, location: "", message: message))
     }
 
     static func parserError(token: Token, message: String) {
+        var error = ""
         if token.type == .EOF {
-            report(line: token.line, location: "at end", message: message)
+            error = report(line: token.line, location: "at end", message: message)
         } else {
-            report(line: token.line, location: "at '\(token.lexeme)'", message: message)
+            error = report(line: token.line, location: "at '\(token.lexeme)'", message: message)
         }
+
+        Swift.print(error)
     }
 
     static func runtimeError(_ error: RuntimeError) {
-        Swift.print("[line \(error.token!.line)] \(error.message)")
+        Swift.print("[\(error.token!.line)] \(error.message)")
     }
 
-    private static func report(line: Int, location: String, message: String) {
-        Swift.print("[line \(line)] Error \(location): \(message)")
+    static func report(line: Int, location: String, message: String) -> String {
+        "[\(line)] Error \(location): \(message)"
     }
 }
-
